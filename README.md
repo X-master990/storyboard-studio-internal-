@@ -1,36 +1,60 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Storyboard Studio (Internal)
 
-## Getting Started
+團隊內部 AI 分鏡生成工具。貼上劇本 → 30 秒拿到完整分鏡 + Kling / Seedance prompt。
 
-First, run the development server:
+## 技術棧
+
+- **Next.js 16** (App Router, Turbopack)
+- **Auth.js v5** (Google OAuth + email allowlist)
+- **Anthropic Claude API** (backend, shared key)
+- **Supabase** (Postgres + Storage, Day 2+)
+- **Tailwind CSS 4** + **Lucide icons**
+- **Vercel** (deploy)
+
+## 本地開發
 
 ```bash
+npm install
+cp .env.example .env.local   # 填入金鑰
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+打開 http://localhost:3000
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 必要環境變數
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+AUTH_SECRET=$(openssl rand -base64 32)
+GOOGLE_CLIENT_ID=           # console.cloud.google.com/apis/credentials
+GOOGLE_CLIENT_SECRET=
+ANTHROPIC_API_KEY=          # console.anthropic.com/settings/keys
+```
 
-## Learn More
+## Google OAuth 設定
 
-To learn more about Next.js, take a look at the following resources:
+1. [Google Cloud Console](https://console.cloud.google.com/) → 新建專案
+2. APIs & Services → Credentials → Create OAuth Client ID
+3. Application type: **Web application**
+4. Authorized redirect URIs:
+   - `http://localhost:3000/api/auth/callback/google`（本地）
+   - `https://<你的網域>.vercel.app/api/auth/callback/google`（正式）
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 加團隊成員
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+編輯 `src/lib/allowlist.ts` → push → Vercel 自動部署。
 
-## Deploy on Vercel
+## 部署到 Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. push 到 GitHub
+2. vercel.com → Import Project → 選此 repo
+3. Environment Variables 加入所有 `.env.local` 內容
+4. Deploy
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 開發進度
+
+- [x] Day 1 — 專案建立、Google OAuth、登入/儀表板雛形
+- [ ] Day 2 — Supabase + 專案 CRUD
+- [ ] Day 3 — 劇本輸入頁 + Claude API 串接
+- [ ] Day 4 — 分鏡輸出 + 下載
+- [ ] Day 5 — 圖片上傳 + UI 打磨
+- [ ] Day 6 — RWD + 上線
