@@ -174,7 +174,7 @@ export default function Workspace() {
 
           {autoEstimate ? (
             <div className="text-xs text-neutral-500 rounded-lg bg-violet-500/5 border border-violet-500/20 px-3 py-2 mt-2">
-              AI 會根據劇本對白密度與故事節奏自動切集，每集 5-60 秒之間
+              AI 自動切集 + 自動拆分 Kling clip（每 clip ≤ 12 秒）
             </div>
           ) : (
             <div className="grid grid-cols-2 gap-3 mt-2">
