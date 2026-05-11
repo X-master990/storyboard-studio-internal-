@@ -3,7 +3,7 @@
 import { useState, useRef } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { Sparkles, Copy, Download, Check, Square } from "lucide-react";
+import { Sparkles, Copy, Download, Check, Square, Wand2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const STYLES = [
@@ -19,6 +19,7 @@ const STYLES = [
 export default function Workspace() {
   const [script, setScript] = useState("");
   const [style, setStyle] = useState(STYLES[0].value);
+  const [autoEstimate, setAutoEstimate] = useState(true);
   const [episodeCount, setEpisodeCount] = useState(1);
   const [episodeDuration, setEpisodeDuration] = useState(20);
   const [aspectRatio, setAspectRatio] = useState<"9:16" | "16:9" | "1:1">(
@@ -56,8 +57,8 @@ export default function Workspace() {
         body: JSON.stringify({
           script,
           style,
-          episodeCount,
-          episodeDuration,
+          episodeCount: autoEstimate ? null : episodeCount,
+          episodeDuration: autoEstimate ? null : episodeDuration,
           aspectRatio,
           platforms,
         }),
@@ -157,34 +158,55 @@ export default function Workspace() {
           </select>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="block text-sm font-medium text-neutral-300 mb-1.5">
-              集數
-            </label>
+        <div>
+          <label className="flex items-center gap-2 cursor-pointer mb-2">
             <input
-              type="number"
-              min={1}
-              max={20}
-              value={episodeCount}
-              onChange={(e) => setEpisodeCount(Number(e.target.value))}
-              className="w-full rounded-lg border border-neutral-800 bg-neutral-950 px-3 py-2 text-sm focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500"
+              type="checkbox"
+              checked={autoEstimate}
+              onChange={(e) => setAutoEstimate(e.target.checked)}
+              className="w-4 h-4 rounded border-neutral-700 bg-neutral-950 text-violet-500 focus:ring-violet-500 focus:ring-offset-0"
             />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-neutral-300 mb-1.5">
-              每集秒數
-            </label>
-            <input
-              type="number"
-              min={5}
-              max={60}
-              step={1}
-              value={episodeDuration}
-              onChange={(e) => setEpisodeDuration(Number(e.target.value))}
-              className="w-full rounded-lg border border-neutral-800 bg-neutral-950 px-3 py-2 text-sm focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500"
-            />
-          </div>
+            <span className="text-sm font-medium text-neutral-300 flex items-center gap-1.5">
+              <Wand2 className="w-3.5 h-3.5 text-violet-400" />
+              讓 AI 自動估算集數與秒數
+            </span>
+          </label>
+
+          {autoEstimate ? (
+            <div className="text-xs text-neutral-500 rounded-lg bg-violet-500/5 border border-violet-500/20 px-3 py-2 mt-2">
+              AI 會根據劇本對白密度與故事節奏自動切集，每集 5-60 秒之間
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-3 mt-2">
+              <div>
+                <label className="block text-xs font-medium text-neutral-400 mb-1.5">
+                  集數
+                </label>
+                <input
+                  type="number"
+                  min={1}
+                  max={20}
+                  value={episodeCount}
+                  onChange={(e) => setEpisodeCount(Number(e.target.value))}
+                  className="w-full rounded-lg border border-neutral-800 bg-neutral-950 px-3 py-2 text-sm focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-neutral-400 mb-1.5">
+                  每集秒數
+                </label>
+                <input
+                  type="number"
+                  min={5}
+                  max={60}
+                  step={1}
+                  value={episodeDuration}
+                  onChange={(e) => setEpisodeDuration(Number(e.target.value))}
+                  className="w-full rounded-lg border border-neutral-800 bg-neutral-950 px-3 py-2 text-sm focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500"
+                />
+              </div>
+            </div>
+          )}
         </div>
 
         <div>
@@ -242,10 +264,12 @@ export default function Workspace() {
           </div>
         </div>
 
-        <div className="text-xs text-neutral-500 rounded-lg bg-neutral-950/50 border border-neutral-800/50 px-3 py-2">
-          總長：<span className="text-neutral-300 font-medium">{totalSeconds} 秒</span>
-          （{episodeCount} 集 × {episodeDuration}s）
-        </div>
+        {!autoEstimate && (
+          <div className="text-xs text-neutral-500 rounded-lg bg-neutral-950/50 border border-neutral-800/50 px-3 py-2">
+            總長：<span className="text-neutral-300 font-medium">{totalSeconds} 秒</span>
+            （{episodeCount} 集 × {episodeDuration}s）
+          </div>
+        )}
 
         {isGenerating ? (
           <button

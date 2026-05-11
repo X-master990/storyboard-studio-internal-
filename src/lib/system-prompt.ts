@@ -4,8 +4,8 @@
 export interface GenerateInput {
   script: string;
   style: string;
-  episodeCount: number;
-  episodeDuration: number;
+  episodeCount: number | null;
+  episodeDuration: number | null;
   aspectRatio: string;
   platforms: ("kling" | "seedance")[];
 }
@@ -181,15 +181,25 @@ export function buildUserMessage(input: GenerateInput): string {
     .map((p) => (p === "kling" ? "Kling 2.x" : "Seedance 2.0"))
     .join(" + ");
 
+  const autoEpisodes = input.episodeCount == null && input.episodeDuration == null;
+
+  const lengthBlock = autoEpisodes
+    ? `- 集數與每集時長：**由你自行估算**
+  - 根據劇本對白密度（中文 4-5 字/秒）、故事節奏、爆點密度切集
+  - 每集建議 5-30 秒，每集應有完整起承轉合或明確情緒節拍
+  - 對白較多時拉長秒數、節奏快時用短集
+  - 在「完整劇本」開頭先用一段「**製作建議**」說明你決定的集數、每集秒數與切集理由`
+    : `- 集數：${input.episodeCount} 集
+- 每集時長：${input.episodeDuration} 秒
+- 總長：${(input.episodeCount ?? 0) * (input.episodeDuration ?? 0)} 秒`;
+
   return `請依以下參數生成完整分鏡專案：
 
 **製作參數：**
 - 視覺風格：${input.style}
-- 集數：${input.episodeCount} 集
-- 每集時長：${input.episodeDuration} 秒
-- 總長：${input.episodeCount * input.episodeDuration} 秒
 - 畫幅：${input.aspectRatio}
 - 目標平台：${platformText}
+${lengthBlock}
 
 **原始劇本/故事：**
 

@@ -10,8 +10,8 @@ export const maxDuration = 300;
 const InputSchema = z.object({
   script: z.string().min(10).max(20000),
   style: z.string().min(1).max(100),
-  episodeCount: z.number().int().min(1).max(20),
-  episodeDuration: z.number().int().min(5).max(60),
+  episodeCount: z.number().int().min(1).max(20).nullable(),
+  episodeDuration: z.number().int().min(5).max(60).nullable(),
   aspectRatio: z.enum(["9:16", "16:9", "1:1"]),
   platforms: z.array(z.enum(["kling", "seedance"])).min(1),
 });
