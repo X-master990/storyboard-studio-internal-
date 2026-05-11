@@ -5,54 +5,68 @@
 ## 技術棧
 
 - **Next.js 16** (App Router, Turbopack)
-- **Auth.js v5** (Google OAuth + email allowlist)
-- **Anthropic Claude API** (backend, shared key)
-- **Supabase** (Postgres + Storage, Day 2+)
+- **Auth.js v5** (帳號密碼登入，bcrypt 加密)
+- **Anthropic Claude API**
+- **Supabase** (Day 2+)
 - **Tailwind CSS 4** + **Lucide icons**
-- **Vercel** (deploy)
+- **Vercel**
 
 ## 本地開發
 
 ```bash
 npm install
-cp .env.example .env.local   # 填入金鑰
+cp .env.example .env.local
+# 編輯 .env.local 填入 AUTH_SECRET
 npm run dev
 ```
 
 打開 http://localhost:3000
 
+預設帳號：`admin` / `admin123`（部署後請立刻改）
+
 ## 必要環境變數
 
 ```bash
 AUTH_SECRET=$(openssl rand -base64 32)
-GOOGLE_CLIENT_ID=           # console.cloud.google.com/apis/credentials
-GOOGLE_CLIENT_SECRET=
 ANTHROPIC_API_KEY=          # console.anthropic.com/settings/keys
 ```
 
-## Google OAuth 設定
+## 加 / 改團隊成員
 
-1. [Google Cloud Console](https://console.cloud.google.com/) → 新建專案
-2. APIs & Services → Credentials → Create OAuth Client ID
-3. Application type: **Web application**
-4. Authorized redirect URIs:
-   - `http://localhost:3000/api/auth/callback/google`（本地）
-   - `https://<你的網域>.vercel.app/api/auth/callback/google`（正式）
+### 加新成員
+1. terminal 跑：
+   ```bash
+   npm run hash-password 你想設的密碼
+   ```
+2. 複製輸出的 hash
+3. 編輯 `src/lib/users.ts`，在 `USERS` 加一行：
+   ```ts
+   {
+     username: "alice",
+     passwordHash: "$2b$10$...剛複製的 hash...",
+     name: "Alice",
+   },
+   ```
+4. commit + push，Vercel 自動部署
 
-## 加團隊成員
+### 改密碼
+產新 hash → 換掉舊的 → push
 
-編輯 `src/lib/allowlist.ts` → push → Vercel 自動部署。
+### 刪成員
+從 `USERS` array 移掉 → push
 
 ## 部署到 Vercel
 
 1. push 到 GitHub
-2. vercel.com → Import Project → 選此 repo
-3. Environment Variables 加入所有 `.env.local` 內容
+2. vercel.com → Import Project
+3. Environment Variables 加：
+   - `AUTH_SECRET`（任意 32+ 字元的隨機字串）
+   - `ANTHROPIC_API_KEY`（之後再加也行）
 4. Deploy
 
 ## 開發進度
 
-- [x] Day 1 — 專案建立、Google OAuth、登入/儀表板雛形
+- [x] Day 1 — 專案建立、帳號密碼登入、登入/儀表板雛形
 - [ ] Day 2 — Supabase + 專案 CRUD
 - [ ] Day 3 — 劇本輸入頁 + Claude API 串接
 - [ ] Day 4 — 分鏡輸出 + 下載
